@@ -4,9 +4,9 @@ import requests
 import psycopg2
 
 if _platform == "win32" or _platform == "win64":
-	files_store = 'D:/Dropbox/Town Square New England/scraped/'
+    files_store = 'D:/Dropbox/Town Square New England/scraped/'
 else:
-    files_store = '/home/matt/Dropbox/Town Square New England/scraped/' 
+    files_store = '/home/matt/Dropbox/Town Square New England/scraped/'
 
 imgmagick = 'C:\Program Files\ImageMagick-6.8.9-Q16\convert'
 
@@ -22,9 +22,17 @@ directory = {
     'ctdoimed': 'CT_DOI_MED/'
 }
 
-logging.basicConfig(filename='scrape.log', level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
+with open('scrape.log', "w"):
+    pass
+
+logging.basicConfig(
+    filename='scrape.log',
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s: %(message)s'
+)
 
 s = requests.Session()
 
-conn = psycopg2.connect(host='104.131.36.242', dbname='django', user='django', password='xDxhU01Wd3')
+conn = psycopg2.connect(
+    host='104.131.36.242', dbname='django', user='django', password='xDxhU01Wd3')
 dbcur = conn.cursor()

@@ -6,7 +6,9 @@ from scrapy.item import Item, Field
 from scrapy.spider import Spider, BaseSpider
 from scrapy.http import Request
 
-from scrapers.items import FileItem
+from scrapers.items import default, FILEITEM, FILEGROUP
+import scrapers.config as config
+import logging
 
 import re
 import urlparse
@@ -32,12 +34,13 @@ class RI_DOI_Spider(CrawlSpider):
         rowSelector = '//table[@class="datatable"]//tr'
         rows = sel.xpath(rowSelector)
 
-        item = FileItem(source='', name='', state='', year='',
-                        grouped=[], gid='', checksum='', raw_text='')
 
         for r in rows:
             col = r.xpath('td')
             if col:
+                item = default(FILEITEM)
+                group = default(FILEGROUP)
+
                 name = col[0].xpath('text()').extract()[0]
                 url = col[1].xpath('a//@href').extract()[0]
                 year = col[2].xpath('text()').extract()[0]
@@ -55,11 +58,11 @@ class RI_DOI_Spider(CrawlSpider):
                 if year == '1007':
                     year = '2007'
 
-                print name
-
                 item['source'] = url.encode('ascii', 'ignore')
                 item['name'] = name
                 item['state'] = state
                 item['year'] = year
+                group['items'].append(item)
 
-                yield item
+                logging.info('SCRAPING > ' + str(len(group['items'])))
+                yield group

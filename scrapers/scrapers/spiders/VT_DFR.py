@@ -6,7 +6,9 @@ from scrapy.item import Item, Field
 from scrapy.spider import Spider, BaseSpider
 from scrapy.http import Request
 
-from scrapers.items import FileItem
+from scrapers.items import default, FILEGROUP, FILEITEM
+import scrapers.config as config
+import logging
 
 import re
 import urlparse
@@ -52,18 +54,8 @@ class VT_DFR_Spider(CrawlSpider):
         fileSelector = '//span[@class="file"]//a'
         files = sel.xpath(fileSelector)
 
-        item = FileItem(source='', name='', state='', year='',
-                        grouped=[], gid='', checksum='', raw_text='')
-
-        grouped = []
-
-        for i in range(len(files)):
-            url = files[i].xpath('@href').extract()[0]
-            # reconstruct the absolute path to the file
-            url = urlparse.urljoin(
-                response.url, url.strip()).encode('ascii', 'ignore')
-
-            grouped.append(url)
+        item = default(FILEITEM)
+        group = default(FILEGROUP)
 
         for i in range(len(files)):
             url = files[i].xpath('@href').extract()[0]
@@ -75,10 +67,14 @@ class VT_DFR_Spider(CrawlSpider):
             name = (re.sub('[\\\?\*\"\.><\|\r\n]', '', title).replace('/', ' ') + ' - ' + re.sub(
                 '[\\\?\*\"\.><\|\r\n]', '', name)).replace(', ', ',')
 
-            item['source'] = url.encode('ascii', 'ignore')
+            item['source'] = url
             item['name'] = name
             item['state'] = state
             item['year'] = year
-            item['grouped'] = grouped
 
-            yield item
+            group['items'].append(item)
+            item = default(FILEITEM)
+
+        logging.info(group['items'][0]['name'])
+        logging.info(len(group['items']))
+        yield group

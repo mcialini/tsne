@@ -6,7 +6,9 @@ from scrapy.item import Item, Field
 from scrapy.spider import Spider, BaseSpider
 from scrapy.http import Request
 
-from scrapers.items import FileItem
+from scrapers.items import default, FILEGROUP, FILEITEM
+import scrapers.config as config
+import logging
 
 import re
 import urlparse
@@ -52,30 +54,26 @@ class VT_DOI_Spider(CrawlSpider):
         fileSelector = '//span[@class="file"]//a'
         files = sel.xpath(fileSelector)
 
-        item = FileItem(source='', name='', state='', year='',
-                        grouped=[], gid='', checksum='', raw_text='')
-
-        grouped = []
+        item = default(FILEITEM)
+        group = default(FILEGROUP)
 
         for i in range(len(files)):
             url = files[i].xpath('@href').extract()[0]
             # reconstruct the absolute path to the file
-            url = urlparse.urljoin(response.url, url.strip()).encode('ascii','ignore')
+            url = urlparse.urljoin(
+                response.url, url.strip()).encode('ascii', 'ignore')
 
-            grouped.append(url)
-
-        for i in range(len(files)):
-            url = files[i].xpath('@href').extract()[0]
-            # reconstruct the absolute path to the file
-            url = urlparse.urljoin(response.url, url.strip()).encode('ascii','ignore')
-            
             name = title + " - " + str(i + 1)
-            name = re.sub('[\\\/]',' ', name)
+            name = re.sub('[\\\/]', ' ', name)
 
-            item['source'] = url.encode('ascii','ignore')
+            item['source'] = url.encode('ascii', 'ignore')
             item['name'] = name
             item['state'] = state
             item['year'] = year
-            item['grouped'] = grouped
 
-            yield item
+            group['items'].append(item)
+            item = default(FILEITEM)
+
+        logging.info(group['items'][0]['name'])
+        logging.info(len(group['items']))
+        yield group

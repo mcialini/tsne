@@ -5,8 +5,13 @@
 
 from scrapy.item import Item, Field
 
-class GroupItem(Item):
-	items = Field()
+FILEITEM = 0
+FILEGROUP = 1
+
+
+class FileGroup(Item):
+    items = Field()
+
 
 class FileItem(Item):
     url = Field()
@@ -15,6 +20,22 @@ class FileItem(Item):
     state = Field()
     year = Field()
     gid = Field()
-    grouped = Field()
     checksum = Field()
     raw_text = Field()
+
+
+def default(type):
+    if type == 0:
+        return FileItem(
+            source='',
+            name='',
+            state='',
+            year='',
+            gid=None,
+            checksum='',
+            raw_text=''
+        )
+    elif type == 1:
+        return FileGroup(items=[])
+    else:
+        return None

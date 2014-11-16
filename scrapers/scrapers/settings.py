@@ -12,11 +12,11 @@ NEWSPIDER_MODULE = 'scrapers.spiders'
 
 
 ITEM_PIPELINES = {	
-	# 'scrapers.verify.VerificationPipeline': 0,
+	'scrapers.verify.VerificationPipeline': 0,
 	'scrapers.download.DownloadingPipeline' : 1,
 	'scrapers.extract.ExtractionPipeline': 2,
-	'scrapers.polish.PolishingPipeline': 3
-	# 'scrapers.insert.InsertionPipeline': 4
+	'scrapers.polish.PolishingPipeline': 3,
+	'scrapers.insert.InsertionPipeline': 4
 }
 
 

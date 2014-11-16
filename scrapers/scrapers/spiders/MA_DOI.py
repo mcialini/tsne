@@ -6,7 +6,9 @@ from scrapy.item import Item, Field
 from scrapy.spider import Spider, BaseSpider
 from scrapy.http import Request
 
-from scrapers.items import FileItem
+from scrapers.items import default, FILEGROUP, FILEITEM
+import scrapers.config as config
+import logging
 
 import re
 
@@ -26,7 +28,6 @@ class MA_DOI_Spider(CrawlSpider):
 
     rules = (
         Rule(SgmlLinkExtractor(allow=("\d\d\d\d-doi-administrative-actions/", "\d\d\d\d-doi-admin-actions/",)), callback='parse_items', ),)
-        
 
     def parse_items(self, response):
         sel = Selector(response)
@@ -35,10 +36,9 @@ class MA_DOI_Spider(CrawlSpider):
 
         links = sel.xpath(getpdfs)
 
-        item = FileItem(source='', name='', state='', year='',
-                        grouped=[], gid='', checksum='', raw_text='')
-
         for link in links:
+            item = default(FILEITEM)
+            group = default(FILEGROUP)
 
             url = URL + link.xpath('@href').extract()[0]
             name = link.xpath('text()').extract()
@@ -49,9 +49,10 @@ class MA_DOI_Spider(CrawlSpider):
             name = re.search(': (.*)', name[0].encode('ascii', 'ignore'))
             name = name.group(1)
 
-            item['source'] = url.encode('ascii', 'ignore')
+            item['source'] = url
             item['name'] = name
             item['state'] = state
             item['year'] = year
+            group['items'].append(item)
 
-            yield item
+            yield group

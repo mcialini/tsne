@@ -11,28 +11,33 @@ import scrapers.config as config
 class DownloadingPipeline(object):
 
     def process_item(self, item, spider):
-    	logging.info('DOWNLOADING PIPELINE')
 
-        url, ext = os.path.splitext(item['source'])
-        path = config.files_store + \
-            config.directory[spider.name] + item['year'] + '/'
+        def process_file_item(f):
+            url, ext = os.path.splitext(f['source'])
+            path = config.files_store + \
+                config.directory[spider.name] + f['year'] + '/'
 
-        try:
-            os.makedirs(path)
-        except Exception:  # Directories already exist
-            pass
+            try:
+                os.makedirs(path)
+            except Exception:  # Directories already exist
+                pass
 
-        try:
-            # r = config.s.get(item['source'])
-            req = urllib2.Request(item['source'])
-            r = urllib2.urlopen(req)
-            filename = (path + item['name'])[:251] + ext
-            with open(filename, 'wb') as out_file:
-                out_file.write(r.read())
-            item['url'] = filename
-        except Exception as e:
-            logging.error(e)
+            try:
+                req = urllib2.Request(f['source'])
+                r = urllib2.urlopen(req)
+                filename = (path + f['name'])[:251] + ext
+                with open(filename, 'wb') as out_file:
+                    out_file.write(r.read())
+                f['url'] = filename
+            except Exception as e:
+                logging.error('Extraction failed!')
+                logging.error(e)
+                return False
+            
+            return f
 
-        # logging.info(item)
-        
-        return item
+        item['items'] = [i for i in map(process_file_item, item['items']) if i is not None]
+        logging.info('DOWNLOADED >' + str(len(item['items'])))
+        if len(item['items']) > 0:
+            return item
+

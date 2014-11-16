@@ -6,7 +6,9 @@ from scrapy.item import Item, Field
 from scrapy.spider import Spider, BaseSpider
 from scrapy.http import Request
 
-from scrapers.items import FileItem
+from scrapers.items import default, FILEGROUP, FILEITEM
+import scrapers.config as config
+import logging
 
 import re
 import urlparse
@@ -33,9 +35,6 @@ class CT_DOI_Medicare_Spider(CrawlSpider):
 
         sel = Selector(response)
 
-        item = FileItem(source='', name='', state='', year='',
-                        grouped=[], gid='', checksum='', raw_text='')
-
         year = ''
 
         rowSelector = '//div//table//tbody//tr'
@@ -55,28 +54,27 @@ class CT_DOI_Medicare_Spider(CrawlSpider):
             else:
 
                 links = rows[r].xpath('td//a[(contains(@href,"lib/cid"))]')
-
-                grouped = []
-                for l in links:
-                    url = l.xpath('@href').extract()[0]
-                    url = urlparse.urljoin(response.url, url.strip()).encode('ascii', 'ignore')
-                    grouped.append(url)
+                group = default(FILEGROUP)
 
                 for l in links:
                     text = l.xpath('text()').extract()
                     name = ''
                     if text:
+                        item = default(FILEITEM)
                         url = l.xpath('@href').extract()[0]
-                        url = urlparse.urljoin(response.url, url.strip())
+                        url = urlparse.urljoin(
+                            response.url, url.strip()).encode('ascii', 'ignore')
 
                         name = text[0].encode('ascii', 'ignore')
                         name = re.sub('[\\\?\*\"\.><\|\r\n]', '', name)
                         name = re.sub('[:\/]', '-', name)
 
-                        item['source'] = url.encode('ascii', 'ignore')
+                        item['source'] = url
                         item['name'] = name
                         item['state'] = state
                         item['year'] = year
-                        item['grouped'] = grouped
 
-                        yield item
+                        group['items'].append(item)
+
+                logging.info(group)
+                yield group
