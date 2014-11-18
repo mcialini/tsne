@@ -52,3 +52,5 @@ class InsertionPipeline(object):
         item['items'] = [i for i in map(process_file_item, item['items']) if i is not None]
         logging.info('INSERTED > ' + str(len(item['items'])))
         return item
+
+

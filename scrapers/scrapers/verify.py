@@ -1,5 +1,6 @@
 import hashlib, urllib2
 from scrapers.config import *
+from scrapy.exceptions import DropItem
 import logging
 
 
@@ -47,7 +48,8 @@ class VerificationPipeline(object):
 
         item['items'] = [i for i in map(process_file_item, item['items']) if i is not None]
         logging.info('VERIFIED > ' + str(len(item['items'])))
-        print item['items']
-        # if len(item['items']) > 0:
-        #     return item
+        if len(item['items']) == 0:
+            raise DropItem("Group has been dropped")
+        else:
+            return item
 

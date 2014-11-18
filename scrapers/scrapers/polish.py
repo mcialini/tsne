@@ -3,6 +3,7 @@ import scrapers.config as config
 import unicodedata
 import re
 from scrapers.regex import *
+from scrapy.exceptions import DropItem
 
 class PolishingPipeline(object):
 
@@ -26,6 +27,9 @@ class PolishingPipeline(object):
             return f
 
         item['items'] = [i for i in map(process_file_item, item['items']) if i is not None]
-        logging.info('POLISHING >' + str(len(item['items'])))
-        if len(item['items']) > 0:
+        logging.info('POLISHED > ' + str(len(item['items'])))
+        logging.info(item['items'])
+        if len(item['items']) == 0:
+            raise DropItem("Group has been dropped")
+        else:
             return item

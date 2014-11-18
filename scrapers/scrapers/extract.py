@@ -4,6 +4,7 @@ import os
 import tempfile
 import subprocess
 import shutil
+from scrapy.exceptions import DropItem
 
 
 class ExtractionPipeline(object):
@@ -52,6 +53,8 @@ class ExtractionPipeline(object):
 
         item['items'] = [
             i for i in map(process_file_item, item['items']) if i is not None]
-        logging.info('EXTRACTING >' + str(len(item['items'])))
-        if len(item['items']) > 0:
+        logging.info('EXTRACTED > ' + str(len(item['items'])))
+        if len(item['items']) == 0:
+            raise DropItem("Group has been dropped")
+        else:
             return item

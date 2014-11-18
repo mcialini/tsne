@@ -6,6 +6,7 @@ import psycopg2
 import urllib2
 
 import scrapers.config as config
+from scrapy.exceptions import DropItem
 
 
 class DownloadingPipeline(object):
@@ -30,14 +31,16 @@ class DownloadingPipeline(object):
                     out_file.write(r.read())
                 f['url'] = filename
             except Exception as e:
-                logging.error('Extraction failed!')
+                logging.error('Download failed!')
                 logging.error(e)
-                return False
+                return None
             
             return f
 
+        logging.info(item['items'])
         item['items'] = [i for i in map(process_file_item, item['items']) if i is not None]
-        logging.info('DOWNLOADED >' + str(len(item['items'])))
-        if len(item['items']) > 0:
+        logging.info('DOWNLOADED > ' + str(len(item['items'])))
+        if len(item['items']) == 0:
+            raise DropItem("Group has been dropped")
+        else:
             return item
-

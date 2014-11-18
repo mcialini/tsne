@@ -22,8 +22,6 @@ directory = {
     'ctdoimed': 'CT_DOI_MED/'
 }
 
-with open('scrape.log', "w"):
-    pass
 
 logging.basicConfig(
     filename='scrape.log',
