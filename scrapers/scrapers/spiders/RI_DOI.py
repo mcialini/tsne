@@ -17,6 +17,7 @@ import urlparse
 DOMAIN = 'dbr.state.ri.us'
 URL = 'http://%s' % DOMAIN
 state = 'RI'
+logging.info('\n-----------\nRIDOI\n------------')
 
 
 class RI_DOI_Spider(CrawlSpider):
@@ -64,5 +65,5 @@ class RI_DOI_Spider(CrawlSpider):
                 item['year'] = year
                 group['items'].append(item)
 
-                logging.info('SCRAPING > ' + str(len(group['items'])))
+                logging.info('SCRAPED > ' + str(len(group['items'])))
                 yield group

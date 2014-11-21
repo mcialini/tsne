@@ -17,6 +17,7 @@ import urlparse
 DOMAIN = 'nh.gov'
 URL = 'http://%s' % DOMAIN
 state = 'NH'
+logging.info('\n-----------\nNHDOI\n------------')
 
 
 class NH_DOI_Spider(CrawlSpider):
@@ -200,5 +201,5 @@ class NH_DOI_Spider(CrawlSpider):
                             item['year'] = year
                             group['items'].append(item)
 
-                    logging.info(group)
+                    logging.info('SCRAPED > ' + str(len(group['items'])))
                     yield group

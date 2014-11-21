@@ -5,13 +5,16 @@ import tempfile
 import subprocess
 import shutil
 from scrapy.exceptions import DropItem
+from bs4 import BeautifulSoup as bs
 
 
 class ExtractionPipeline(object):
 
     def process_item(self, item, spider):
         def process_HTML(f):
-            print '\tHTML'
+            print f['url']
+            soup = bs(open(f['url']))
+            print soup.head.title
             return f
 
         def process_PDF(spider, f):
@@ -20,14 +23,15 @@ class ExtractionPipeline(object):
             try:
                 os.makedirs(direc)
             except Exception as e:
+                logging.warning('Make dirs failed!')
                 logging.error(e.message)
-                logging.error('Dropping file!')
+                logging.warning('Dropping file: ' + f['source'])
 
             ret = subprocess.call(
                 [config.imgmagick, '-density', '400', f['url'], direc + 'file.jpg'])
             raw = ''
+            logging.info('There are ' + str(len(os.listdir(direc))) + ' images extracted')
             for fi in os.listdir(direc):
-                print direc + fi
                 tes = subprocess.call(
                     ['tesseract', direc + fi, direc + 'output'])
                 raw += open(direc + 'output.txt').read()
@@ -41,14 +45,13 @@ class ExtractionPipeline(object):
         def process_file_item(f):
             try:
                 if '.pdf' in f['source']:
-                    logging.info('extracting: ' + f['source'])
                     f = process_PDF(spider, f)
                 else:
                     f = process_HTML(f)
                 return f
             except Exception as e:
                 logging.error(e)
-                logging.error('Dropping item!')
+                logging.warning('Dropping file: ' + f['source'])
                 return None
 
         item['items'] = [

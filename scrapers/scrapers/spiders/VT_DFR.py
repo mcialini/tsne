@@ -18,6 +18,7 @@ DOMAIN = 'dfr.vermont.gov'
 URL = 'http://%s' % DOMAIN
 state = 'VT'
 
+logging.info('\n-----------\nVTDFR\n------------')
 
 class VT_DFR_Spider(CrawlSpider):
 
@@ -75,6 +76,5 @@ class VT_DFR_Spider(CrawlSpider):
             group['items'].append(item)
             item = default(FILEITEM)
 
-        logging.info(group['items'][0]['name'])
-        logging.info(len(group['items']))
+        logging.info('SCRAPED > ' + str(len(group['items'])))
         yield group

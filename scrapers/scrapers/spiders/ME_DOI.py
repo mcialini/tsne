@@ -110,5 +110,5 @@ class ME_DOI_Spider(CrawlSpider):
                     item['year'] = year
                     group['items'].append(item)
 
-            logging.info(group)
+            logging.info('SCRAPED > ' + str(len(group['items'])))
             yield group

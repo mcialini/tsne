@@ -33,11 +33,11 @@ class DownloadingPipeline(object):
             except Exception as e:
                 logging.error('Download failed!')
                 logging.error(e)
+                logging.warning('Dropping file: ' + f['source'])
                 return None
             
             return f
 
-        logging.info(item['items'])
         item['items'] = [i for i in map(process_file_item, item['items']) if i is not None]
         logging.info('DOWNLOADED > ' + str(len(item['items'])))
         if len(item['items']) == 0:

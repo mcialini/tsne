@@ -16,6 +16,7 @@ import re
 DOMAIN = 'mass.gov'
 URL = 'http://%s' % DOMAIN
 state = 'MA'
+logging.info('\n-----------\nMADOI\n------------')
 
 
 class MA_DOI_Spider(CrawlSpider):
@@ -55,4 +56,5 @@ class MA_DOI_Spider(CrawlSpider):
             item['year'] = year
             group['items'].append(item)
 
+            logging.info('SCRAPED > ' + str(len(group['items'])))
             yield group

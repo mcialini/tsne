@@ -23,6 +23,8 @@ urls = ['http://www.ct.gov/cid/cwp/view.asp?q=289000',
         'http://www.ct.gov/cid/cwp/view.asp?a=1260&Q=471978',
         'http://www.ct.gov/cid/cwp/view.asp?a=1260&Q=453912']
 
+logging.info('\n-----------\nCTDOIMED\n------------')
+
 
 class CT_DOI_Medicare_Spider(CrawlSpider):
 
@@ -76,5 +78,5 @@ class CT_DOI_Medicare_Spider(CrawlSpider):
 
                         group['items'].append(item)
 
-                logging.info(group)
+                logging.info('SCRAPED > ' + str(len(group['items'])))
                 yield group
