@@ -94,21 +94,24 @@ class ME_DOI_Spider(CrawlSpider):
                 comp = comp3
 
             group = default(FILEGROUP)
-            for l in links[i].xpath('td//div/a'):
+            docs = links[i].xpath('td//div/a')
+            for l in docs:
                 if (l):
                     item = default(FILEITEM)
                     lastpart = l.xpath('text()').extract()[
                         0].rstrip().encode('ascii', 'ignore')
-                    url = l.xpath('@href').extract()[0]
-                    url = urlparse.urljoin(response.url, url.strip())
+                    if (len(docs) == 1) or (len(docs) > 1 and 'PDF' not in lastpart):
+                        url = l.xpath('@href').extract()[0]
+                        url = urlparse.urljoin(response.url, url.strip())
 
-                    name = comp + ' - ' + lastpart
+                        name = comp + ' - ' + lastpart
 
-                    item['source'] = url.encode('ascii', 'ignore')
-                    item['name'] = name
-                    item['state'] = state
-                    item['year'] = year
-                    group['items'].append(item)
+                        logging.info(lastpart + ': ' + name)
+                        item['source'] = url.encode('ascii', 'ignore').replace(' ', '%20')
+                        item['name'] = name
+                        item['state'] = state
+                        item['year'] = year
+                        group['items'].append(item)
 
             logging.info('SCRAPED > ' + str(len(group['items'])))
             yield group
