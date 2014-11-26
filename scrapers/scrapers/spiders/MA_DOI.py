@@ -28,7 +28,26 @@ class MA_DOI_Spider(CrawlSpider):
         'http://www.mass.gov/ocabr/insurance/providers-and-producers/insurance-producers/enforcement/doi-administrative-actions']
 
     rules = (
-        Rule(SgmlLinkExtractor(allow=("\d\d\d\d-doi-administrative-actions/", "\d\d\d\d-doi-admin-actions/",)), callback='parse_items', ),)
+        # Follow the links for each year of actions
+        Rule(
+            LxmlLinkExtractor(
+                allow=(
+                    "\d\d\d\d-doi-administrative-actions/",
+                    "\d\d\d\d-doi-admin-actions/",
+                )
+            ),
+        ),
+        # Do simple parse of pdf links
+        Rule(
+            SgmlLinkExtractor(
+                allow=(
+                    "\d\d\d\d-doi-administrative-actions/",
+                    "\d\d\d\d-doi-admin-actions/",
+                )
+            ),    
+        ),
+        # Parse HTML documents individually and create items for each row of the table
+    )
 
     def parse_items(self, response):
         sel = Selector(response)
